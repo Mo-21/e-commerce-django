@@ -61,6 +61,7 @@ class Order(models.Model):
     ]
     payment_status = models.CharField(
         max_length=1, default='P', choices=PAYMENT_STATUS_CHOICES)
+    placed_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 

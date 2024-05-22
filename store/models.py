@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 from decimal import Decimal
 
 
@@ -19,3 +20,23 @@ class Product(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(10000)])
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     last_update = models.DateTimeField(auto_now=True)
+
+
+class Customer(models.Model):
+    MEMBERSHIP_BRONZE = 'B'
+    MEMBERSHIP_SILVER = 'S'
+    MEMBERSHIP_GOLD = 'G'
+
+    MEMBERSHIP_CHOICES = [
+        (MEMBERSHIP_BRONZE, 'Bronze'),
+        (MEMBERSHIP_SILVER, 'Silver'),
+        (MEMBERSHIP_GOLD, 'Gold')
+    ]
+
+    phone = models.CharField(max_length=255)
+    birthdate = models.DateField(null=True)
+    membership = models.CharField(
+        max_length=1, default=MEMBERSHIP_BRONZE, choices=MEMBERSHIP_CHOICES)
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

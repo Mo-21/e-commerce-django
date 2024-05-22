@@ -5,6 +5,11 @@ from uuid import uuid4
 from decimal import Decimal
 
 
+class Promotion(models.Model):
+    description = models.CharField(max_length=255)
+    discount = models.FloatField()
+
+
 class Collection(models.Model):
     name = models.CharField(max_length=255)
     featured_product = models.ForeignKey(
@@ -21,6 +26,7 @@ class Product(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(10000)])
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     last_update = models.DateTimeField(auto_now=True)
+    promotion = models.ManyToManyField(Promotion, blank=True)
 
 
 class Customer(models.Model):

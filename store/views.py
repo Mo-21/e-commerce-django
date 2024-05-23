@@ -22,9 +22,14 @@ class CollectionViewSet(ModelViewSet):
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related(
         'collection').prefetch_related('promotion')
-    serializer_class = serializers.ProductSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     pagination_class = CustomPagination
     ordering_fields = ['id', 'title', 'unit_price',
                        'quantity']
+    permission_classes = [IsAdminOrReadOnly]
     filterset_class = ProductFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return serializers.ProductReadSerializer
+        return serializers.ProductWriteSerializer

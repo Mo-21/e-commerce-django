@@ -5,11 +5,10 @@ import pytest
 
 @pytest.mark.django_db
 class TestCollections:
-    def test_collection_creation_returns_403_if_user_is_not_staff(self):
-        collection = {'name': 'a'}
+    def test_collection_creation_returns_403_if_user_is_not_staff(self, create_collection, authenticate_user):
+        authenticate_user(is_staff=False)
 
-        client = APIClient()
-        response = client.post('/store/collections/', collection)
+        response = create_collection({'name': 'a'})
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 

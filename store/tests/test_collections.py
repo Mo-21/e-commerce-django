@@ -50,6 +50,25 @@ class TestSingleCollection:
 
         assert response.status_code == status.HTTP_200_OK
 
+    def test_collection_delete_returns_401_if_user_is_anon(self, delete_collection):
+        response = delete_collection()
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_collection_delete_returns_403_if_user_is_staff(self, authenticate_user, delete_collection):
+        authenticate_user(is_staff=False)
+
+        response = delete_collection()
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_collection_delete_returns_200_if_user_is_staff(self, authenticate_user, delete_collection):
+        authenticate_user(is_staff=True)
+
+        response = delete_collection()
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
     def test_collection_retrieve_returns_200_if_user_is_anon(self, collection, api_client):
         response = api_client.get(f'/store/collections/{collection.id}/')
 

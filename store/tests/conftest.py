@@ -12,6 +12,11 @@ def api_client():
 
 
 @pytest.fixture
+def collection():
+    return baker.make(Collection)
+
+
+@pytest.fixture
 def create_collection(api_client):
     def do_create_collection(collection):
         return api_client.post(
@@ -33,8 +38,13 @@ def update_collection(api_client, collection):
 
 
 @pytest.fixture
-def collection():
-    return baker.make(Collection)
+def delete_collection(api_client, collection):
+    collection = model_to_dict(collection)
+
+    def do_delete_collection():
+        id = collection['id']
+        return api_client.delete(f'/store/collections/{id}/')
+    return do_delete_collection
 
 
 @pytest.fixture

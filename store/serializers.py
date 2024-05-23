@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Collection, Product, Promotion
+from .models import Collection, Product, Promotion, Customer
+from core.serializers import UserSerializer
 from decimal import Decimal
 
 
@@ -40,3 +41,11 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['title', 'description',
                   'unit_price', 'quantity', 'promotion', 'collection']
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Customer
+        fields = ['phone', 'birthdate', 'membership', 'user']

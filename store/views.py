@@ -2,7 +2,7 @@ from django.db.models.aggregates import Count
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Collection, Product
+from .models import Collection, Product, Customer
 from .pagination import CustomPagination
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
@@ -33,3 +33,9 @@ class ProductViewSet(ModelViewSet):
         if self.request.method == 'GET':
             return serializers.ProductReadSerializer
         return serializers.ProductWriteSerializer
+
+
+class CustomerViewSet(ModelViewSet):
+    queryset = Customer.objects.select_related('user').all()
+    serializer_class = serializers.CustomerSerializer
+    pagination_class = CustomPagination

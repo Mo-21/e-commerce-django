@@ -1,7 +1,5 @@
 from rest_framework import permissions
 
-# TODO: test if works when admin
-
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):

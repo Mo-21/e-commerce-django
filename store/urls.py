@@ -1,7 +1,9 @@
 from rest_framework.routers import DefaultRouter
-from .views import CollectionViewSet
+from . import views
 
 router = DefaultRouter()
-router.register('collections', CollectionViewSet)
+router.register('collections', views.CollectionViewSet)
+router.register('products', views.ProductViewSet)
+
 
 urlpatterns = router.urls

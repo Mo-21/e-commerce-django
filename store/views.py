@@ -1,11 +1,17 @@
 from rest_framework.viewsets import ModelViewSet
 from django.db.models.aggregates import Count
-from .serializers import CollectionSerializer
-from .models import Collection
+from .models import Collection, Product
+from . import serializers
 
 
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         products_count=Count('product')
-    ).all()
-    serializer_class = CollectionSerializer
+    )
+    serializer_class = serializers.CollectionSerializer
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.select_related(
+        'collection').prefetch_related('promotion')
+    serializer_class = serializers.ProductSerializer

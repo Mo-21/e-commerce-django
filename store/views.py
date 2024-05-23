@@ -1,6 +1,9 @@
 from django.db.models.aggregates import Count
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Collection, Product, Customer
 from .pagination import CustomPagination
@@ -36,6 +39,21 @@ class ProductViewSet(ModelViewSet):
 
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.select_related('user').all()
+    queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['GET', 'PATCH'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        (customer, is_created) = Customer.objects.get_or_create(
+            user_id=request.user.id)
+        if request.method == 'GET':
+            serializer = serializers.CustomerSerializer(customer)
+            return Response(serializer.data)
+        elif request.method == 'Patch':
+            serializer = serializers.CustomerSerializer(
+                customer, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

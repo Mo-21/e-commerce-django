@@ -1,5 +1,7 @@
 from rest_framework.test import APIClient
 from rest_framework import status
+from model_bakery import baker
+from store.models import Collection
 import pytest
 
 
@@ -12,10 +14,9 @@ class TestCollections:
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_collection_list_returns_200_if_user_is_anon(self):
-        collection_id = '6'
+    def test_collection_list_returns_200_if_user_is_anon(self, api_client):
+        collection = baker.make(Collection)
 
-        api_client = APIClient()
-        response = api_client.get('/store/products/1/')
+        response = api_client.get(f'/store/collections/{collection.id}/')
 
         assert response.status_code == status.HTTP_200_OK

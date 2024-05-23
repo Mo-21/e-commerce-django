@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Collection, Product
 from .pagination import CustomPagination
 from .filters import ProductFilter
+from .permissions import IsAdminOrReadOnly
 from . import serializers
 
 
@@ -15,6 +16,7 @@ class CollectionViewSet(ModelViewSet):
     serializer_class = serializers.CollectionSerializer
     filter_backends = [OrderingFilter]
     ordering_fields = ['id', 'products_count']
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class ProductViewSet(ModelViewSet):

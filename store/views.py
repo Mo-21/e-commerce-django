@@ -13,6 +13,8 @@ class CollectionViewSet(ModelViewSet):
         products_count=Count('product')
     )
     serializer_class = serializers.CollectionSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['id', 'products_count']
 
 
 class ProductViewSet(ModelViewSet):

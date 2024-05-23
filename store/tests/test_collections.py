@@ -43,6 +43,13 @@ class TestSingleCollection:
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    def test_collection_update_returns_200_if_user_is_staff(self, authenticate_user, update_collection):
+        authenticate_user(is_staff=True)
+
+        response = update_collection()
+
+        assert response.status_code == status.HTTP_200_OK
+
     def test_collection_retrieve_returns_200_if_user_is_anon(self, collection, api_client):
         response = api_client.get(f'/store/collections/{collection.id}/')
 

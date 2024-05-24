@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Collection, Product, Customer, Review
@@ -62,8 +62,15 @@ class CustomerViewSet(ModelViewSet):
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = serializers.ReviewSerializer
+    pagination_class = CustomPagination
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['created_at']
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         product_id = self.kwargs['product_pk']
         get_object_or_404(Product, id=product_id)
         return Review.objects.filter(product_id=product_id)
+
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}

@@ -51,7 +51,7 @@ class CustomerViewSet(ModelViewSet):
         if request.method == 'GET':
             serializer = serializers.CustomerSerializer(customer)
             return Response(serializer.data)
-        elif request.method == 'Patch':
+        elif request.method == 'PATCH':
             serializer = serializers.CustomerSerializer(
                 customer, data=request.data)
             serializer.is_valid(raise_exception=True)

@@ -1,12 +1,13 @@
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Collection, Product, Customer, Review
+from .models import Collection, Product, Customer, Review, Cart, CartItem
 from .pagination import CustomPagination
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
@@ -75,3 +76,15 @@ class ReviewViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
+
+
+class CartItemViewSet(ModelViewSet):
+    serializer_class = serializers.CartItemSerializer
+
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
+
+
+class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = Cart.objects.prefetch_related('items__product').all()
+    serializer_class = serializers.CartSerializer

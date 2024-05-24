@@ -101,16 +101,24 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
 
 
 class OrderViewSet(ModelViewSet):
-    serializer_class = serializers.OrderSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
     def get_queryset(self):
         current_user = self.request.user
-        order_customer_id = Customer.objects.only('id').get(user_id=current_user.id)
-        
+        order_customer_id = Customer.objects.only(
+            'id').get(user_id=current_user.id)
+
         if current_user.is_staff:
             return Order.objects.prefetch_related('items__product').all()
         elif current_user.id == order_customer_id:
             return Order.objects.prefetch_related('items__product').filter(customer_id=order_customer_id)
         return Order.objects.prefetch_related('items__product').all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.OrderCreationSerializer
+        return serializers.OrderSerializer
+
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}

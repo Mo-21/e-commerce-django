@@ -61,6 +61,7 @@ class CustomerViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
+    # TODO: allow put only if the review is created by the current user
     serializer_class = serializers.ReviewSerializer
     pagination_class = CustomPagination
     filter_backends = [OrderingFilter]

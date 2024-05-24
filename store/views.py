@@ -7,7 +7,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Collection, Product, Customer, Review, Cart, CartItem
+from .models import Collection, Product, Customer, Review, Cart, CartItem, Order, OrderItem
 from .pagination import CustomPagination
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
@@ -98,3 +98,8 @@ class CartItemViewSet(ModelViewSet):
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = serializers.CartSerializer
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.prefetch_related('items__product').all()
+    serializer_class = serializers.OrderSerializer

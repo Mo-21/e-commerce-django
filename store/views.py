@@ -1,11 +1,12 @@
 from django.db.models.aggregates import Count
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Collection, Product, Customer
+from .models import Collection, Product, Customer, Review
 from .pagination import CustomPagination
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
@@ -57,3 +58,12 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class ReviewViewSet(ModelViewSet):
+    serializer_class = serializers.ReviewSerializer
+
+    def get_queryset(self):
+        product_id = self.kwargs['product_pk']
+        get_object_or_404(Product, id=product_id)
+        return Review.objects.filter(product_id=product_id)

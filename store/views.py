@@ -133,6 +133,16 @@ class OrderViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
+
+    def create(self, request, *args, **kwargs):
+        serializer = serializers.OrderCreationSerializer(
+            data=request.data,
+            context={'user_id': self.request.user.id})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = serializers.OrderSerializer(order)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         current_user = self.request.user
         order_customer_id = Customer.objects.only(
@@ -148,6 +158,3 @@ class OrderViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.OrderCreationSerializer
         return serializers.OrderSerializer
-
-    def get_serializer_context(self):
-        return {'user_id': self.request.user.id}

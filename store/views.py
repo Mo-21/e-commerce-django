@@ -62,20 +62,30 @@ class CustomerViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    # TODO: allow put only if the review is created by the current user
-    serializer_class = serializers.ReviewSerializer
     pagination_class = CustomPagination
     filter_backends = [OrderingFilter]
     ordering_fields = ['created_at']
     permission_classes = [IsAuthenticatedOrReadOnly]
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         product_id = self.kwargs['product_pk']
         get_object_or_404(Product, id=product_id)
         return Review.objects.filter(product_id=product_id)
 
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            user_id = self.request.user.id
+            review_id = self.kwargs.get('pk')
+            if user_id == review_id:
+                return serializers.ReviewUpdateSerializer
+        return serializers.ReviewSerializer
+
     def get_serializer_context(self):
-        return {'product_id': self.kwargs['product_pk']}
+        return {
+            'product_id': self.kwargs['product_pk'],
+            'user_id': self.request.user.id
+        }
 
 
 class CartItemViewSet(ModelViewSet):

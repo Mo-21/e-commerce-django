@@ -62,7 +62,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         product_id = self.context['product_id']
-        return Review.objects.create(product_id=product_id, **validated_data)
+        user_id = self.context['user_id']
+        return Review.objects.create(product_id=product_id, user_id=user_id, ** validated_data)
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'title', 'content']
 
 
 class AddCartItemSerializer(serializers.ModelSerializer):

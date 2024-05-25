@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from .models import Collection, Product, Promotion, Customer, Review, Cart, CartItem, Order, OrderItem
 from decimal import Decimal
@@ -157,6 +156,16 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderCreationSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
 
+    def validate_cart_id(self, cart_id):
+        # validate if cart exists
+        if not Cart.objects.filter(pk=cart_id).exists():
+            raise serializers.ValidationError(
+                'No cart with the given ID was found.')
+        # validate if cart is not empty
+        if CartItem.objects.filter(cart_id=cart_id).count() == 0:
+            raise serializers.ValidationError('The cart is empty.')
+        return cart_id
+
     def save(self, **kwargs):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
@@ -177,4 +186,7 @@ class OrderCreationSerializer(serializers.Serializer):
             ]
 
             OrderItem.objects.bulk_create(order_items)
+
             Cart.objects.filter(pk=cart_id).delete()
+
+            return order

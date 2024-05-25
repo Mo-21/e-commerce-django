@@ -1,11 +1,13 @@
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
+from rest_framework.serializers import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Collection, Product, Customer, Review, Cart, CartItem, Order, OrderItem
 from .pagination import CustomPagination
@@ -77,8 +79,12 @@ class ReviewViewSet(ModelViewSet):
         if self.request.method == 'PATCH':
             user_id = self.request.user.id
             review_id = self.kwargs.get('pk')
-            if user_id == review_id:
+            review = get_object_or_404(Review, id=review_id)
+            if user_id == review.user.id:
                 return serializers.ReviewUpdateSerializer
+            else:
+                raise ValidationError('You did not create this review')
+
         return serializers.ReviewSerializer
 
     def get_serializer_context(self):

@@ -77,14 +77,7 @@ class ReviewViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
-            user_id = self.request.user.id
-            review_id = self.kwargs.get('pk')
-            review = get_object_or_404(Review, id=review_id)
-            if user_id == review.user.id:
-                return serializers.ReviewUpdateSerializer
-            else:
-                raise ValidationError('You did not create this review')
-
+            return serializers.ReviewUpdateSerializer
         return serializers.ReviewSerializer
 
     def get_serializer_context(self):
@@ -92,6 +85,26 @@ class ReviewViewSet(ModelViewSet):
             'product_id': self.kwargs['product_pk'],
             'user_id': self.request.user.id
         }
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        # Check if the current user is the author of the review
+        if request.user.id != instance.user.id:
+            return Response(
+                {'details': 'You do not have permission to edit this review.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = serializers.ReviewUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class CartItemViewSet(ModelViewSet):

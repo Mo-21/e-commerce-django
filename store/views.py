@@ -50,7 +50,7 @@ class CustomerViewSet(ModelViewSet):
 
     @action(detail=False, methods=['GET', 'PATCH'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        (customer, is_created) = Customer.objects.get_or_create(
+        customer = Customer.objects.get(
             user_id=request.user.id)
         if request.method == 'GET':
             serializer = serializers.CustomerSerializer(customer)

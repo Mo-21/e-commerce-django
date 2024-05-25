@@ -130,9 +130,13 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
 
 
 class OrderViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
     pagination_class = CustomPagination
 
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         serializer = serializers.OrderCreationSerializer(
@@ -142,7 +146,7 @@ class OrderViewSet(ModelViewSet):
         order = serializer.save()
         serializer = serializers.OrderSerializer(order)
         return Response(serializer.data)
-    
+
     def get_queryset(self):
         current_user = self.request.user
         order_customer_id = Customer.objects.only(

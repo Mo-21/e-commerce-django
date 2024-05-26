@@ -3,7 +3,7 @@ from django.contrib import admin, messages
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from .models import Product, Collection, Customer
+from .models import Product, Collection, Customer, Order
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -76,8 +76,9 @@ class CollectionAdmin(admin.ModelAdmin):
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name',
-                    'membership', 'phone', 'birthdate']
+                    'membership', 'orders_count', 'phone', 'birthdate']
     list_filter = ['membership']
+    search_fields = ['first_name__istartswith', 'last_name__istartswith']
     list_select_related = ['user']
     list_per_page = 20
 
@@ -88,3 +89,22 @@ class CustomerAdmin(admin.ModelAdmin):
     @admin.display(ordering='user__last_name')
     def last_name(self, customer):
         return customer.user.last_name
+
+    @admin.display(ordering='orders_count')
+    def orders_count(self, customer):
+        return customer.orders_count
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(
+            orders_count=Count('order')
+        )
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['id', 'payment_status', 'username', 'placed_at']
+    list_select_related = ['customer__user']
+
+    @admin.display()
+    def username(self, order):
+        return order.customer.user.username

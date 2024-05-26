@@ -5,11 +5,11 @@ from rest_framework import status
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import action
 from rest_framework.serializers import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Collection, Product, Customer, Review, Cart, CartItem, Order, OrderItem
+from .models import Collection, Product, Customer, Review, Cart, CartItem, Order, ProductImage
 from .pagination import CustomPagination
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
@@ -40,6 +40,21 @@ class ProductViewSet(ModelViewSet):
         if self.request.method == 'GET':
             return serializers.ProductReadSerializer
         return serializers.ProductWriteSerializer
+
+
+class ProductImageViewSet(ModelViewSet):
+    serializer_class = serializers.ProductImageSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}
 
 
 class CustomerViewSet(ModelViewSet):

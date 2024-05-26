@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from .models import Collection, Product, Promotion, Customer, Review, Cart, CartItem, Order, OrderItem
+from .models import Collection, Product, Promotion, Customer, Review, Cart, CartItem, Order, OrderItem, ProductImage
 from .signals import order_created
 from decimal import Decimal
 
@@ -50,6 +50,16 @@ class SimpleProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'unit_price']
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+
+    def create(self, validated_data):
+        product_id = self.context['product_id']
+        return ProductImage.objects.create(product_id=product_id, **validated_data)
+
+
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
@@ -64,7 +74,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         product_id = self.context['product_id']
         user_id = self.context['user_id']
-        return Review.objects.create(product_id=product_id, user_id=user_id, ** validated_data)
+        return Review.objects.create(product_id=product_id, user_id=user_id, **validated_data)
 
 
 class ReviewUpdateSerializer(serializers.ModelSerializer):

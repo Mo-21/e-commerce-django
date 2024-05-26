@@ -32,6 +32,9 @@ class Product(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     promotion = models.ManyToManyField(Promotion, blank=True)
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(

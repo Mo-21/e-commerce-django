@@ -3,7 +3,7 @@ from django.contrib import admin, messages
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from .models import Product, Collection
+from .models import Product, Collection, Customer
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -71,3 +71,20 @@ class CollectionAdmin(admin.ModelAdmin):
     @admin.display(ordering='products_count')
     def products_count(self, collection):
         return collection.products_count
+
+
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ['first_name', 'last_name',
+                    'membership', 'phone', 'birthdate']
+    list_filter = ['membership']
+    list_select_related = ['user']
+    list_per_page = 20
+
+    @admin.display(ordering='user__first_name')
+    def first_name(self, customer):
+        return customer.user.first_name
+
+    @admin.display(ordering='user__last_name')
+    def last_name(self, customer):
+        return customer.user.last_name

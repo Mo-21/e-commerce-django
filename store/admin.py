@@ -1,6 +1,9 @@
+from typing import Any
 from django.contrib import admin, messages
+from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
-from .models import Product
+from django.http import HttpRequest
+from .models import Product, Collection
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -32,6 +35,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['collection', 'last_update', InventoryFilter]
     search_fields = ['title']
     actions = ['clear_inventory']
+    autocomplete_fields = ['collection']
     prepopulated_fields = {
         'slug': ['title']
     }
@@ -52,3 +56,18 @@ class ProductAdmin(admin.ModelAdmin):
             f'{updated_count} products were successfully updated.',
             messages.SUCCESS
         )
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'products_count']
+    search_fields = ['name']
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(
+            products_count=Count('product')
+        )
+
+    @admin.display(ordering='products_count')
+    def products_count(self, collection):
+        return collection.products_count

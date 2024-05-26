@@ -3,7 +3,7 @@ from django.contrib import admin, messages
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from .models import Product, Collection, Customer, Order
+from .models import Product, Collection, Customer, Order, ProductImage
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -26,6 +26,14 @@ class InventoryFilter(admin.SimpleListFilter):
             return queryset.filter(quantity__gt=50)
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    autocomplete_fields = ['product']
+    min_num = 1
+    max_num = 10
+    extra = 0
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'unit_price',
@@ -36,6 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title']
     actions = ['clear_inventory']
     autocomplete_fields = ['collection']
+    inlines = [ProductImageInline]
     prepopulated_fields = {
         'slug': ['title']
     }

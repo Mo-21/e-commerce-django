@@ -1,5 +1,7 @@
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
@@ -15,6 +17,7 @@ from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from . import serializers
 
 
+@method_decorator(cache_page(5*60), name='dispatch')
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         products_count=Count('product')
@@ -25,6 +28,7 @@ class CollectionViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
 
 
+@method_decorator(cache_page(5*60), name='dispatch')
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related(
         'collection').prefetch_related('promotion')

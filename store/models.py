@@ -62,6 +62,11 @@ class Customer(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    class Meta:
+        permissions = [
+            ('view_history', 'Can view history')
+        ]
+
 
 class Order(models.Model):
     PAYMENT_PENDING = 'P'

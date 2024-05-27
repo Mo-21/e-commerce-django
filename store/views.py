@@ -7,12 +7,11 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import action
-from rest_framework.serializers import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Collection, Product, Customer, Review, Cart, CartItem, Order, ProductImage
 from .pagination import CustomPagination
 from .filters import ProductFilter
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from . import serializers
 
 
@@ -76,6 +75,10 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
+    def history(self, request, pk):
+        return Response('ok')
 
 
 class ReviewViewSet(ModelViewSet):

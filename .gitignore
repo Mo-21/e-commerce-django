@@ -2,3 +2,8 @@ settings.py
 settings.json
 .vscode
 __pycache__
+*.pyc
+*.jpg
+*.webp
+/media/
+/static/
